@@ -2,6 +2,7 @@ import express from "express";
 import mongoose from "mongoose";
 import cors from "cors";
 import articleRouter from "./routes/article.js";
+import { errorMiddlerWare } from "./utils/errors.js";
 
 const app = express();
 const port = process.env.PORT;
@@ -11,6 +12,20 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use("/articles", articleRouter);
+
+// ==================== Home Route ====================
+app.get("/", (req, res) => {
+  res.status(200).send("Welcome To Our Blog System");
+});
+
+//=====================Error MiddleWare ====================
+app.use(errorMiddlerWare);
+app.use((_req, res) => {
+  res.status(404).json({
+    success: false,
+    message: "Page Not Found",
+  });
+});
 
 // ================= Database connection ===========================
 const connectionParams = {
@@ -29,8 +44,3 @@ mongoose
   .catch((e) => {
     console.log(e);
   });
-
-// ==================== Home Route ====================
-app.get("/", (req, res) => {
-  res.status(200).send("Welcome To Our Blog System");
-});

@@ -1,15 +1,11 @@
 import Article from "../models/article.js";
 import { articleValidation } from "../validators/article.js";
+import { raiseValidationError, passError } from "../utils/errors.js";
 
-export const addArticle = async (req, res) => {
+export const addArticle = async (req, res, next) => {
   try {
     const { error } = articleValidation(req?.body);
-    if (error) {
-      return res.status(400).json({
-        success: false,
-        message: error.details[0].message,
-      });
-    }
+    if (error) raiseValidationError(error);
     const newArticle = new Article({ ...req.body });
     const savedArticle = await newArticle.save();
     return res.status(201).json({
@@ -17,11 +13,11 @@ export const addArticle = async (req, res) => {
       data: savedArticle,
     });
   } catch (error) {
-    console.log(error);
+    passError(error, next);
   }
 };
 
-export const getAllArticles = async (req, res) => {
+export const getAllArticles = async (req, res, next) => {
   try {
     const { q } = req?.query;
     const regex = new RegExp(q, "gi");
@@ -34,11 +30,11 @@ export const getAllArticles = async (req, res) => {
       data: allArticles,
     });
   } catch (error) {
-    console.log(error);
+    passError(error, next);
   }
 };
 
-export const getArticle = async (req, res) => {
+export const getArticle = async (req, res, next) => {
   try {
     const { id } = req?.params;
     const article = await Article.findById(id).exec();
@@ -47,6 +43,6 @@ export const getArticle = async (req, res) => {
       data: article,
     });
   } catch (error) {
-    console.log(error);
+    passError(error, next);
   }
 };
